@@ -7,10 +7,10 @@ type KNN
 end
 
 function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclidean")
-    predictedLabels = []
+    predictedLabels = String[]
     for i in 1:size(testData, 1)
         sourcePoint = Array(testData[i,:])
-        distances = []
+        distances = Float64[]
         for j in 1:size(data.x, 1)
             destPoint = Array(data.x[j,:])
             distance = calcDist(sourcePoint, destPoint; method=method)
