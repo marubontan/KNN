@@ -7,19 +7,21 @@ type KNN
 end
 
 function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclidean")
-    predictedLabels = String[]
-    for i in 1:size(testData, 1)
+    targetPointsNum = size(testData, 1)
+    predictedLabels = Array{String}(targetPointsNum)
+    for i in 1:targetPointsNum
         sourcePoint = Array(testData[i,:])
-        distances = Float64[]
-        for j in 1:size(data.x, 1)
+        trainPointsNum = size(data.x, 1)
+        distances = Array{Float64}(trainPointsNum)
+        for j in 1:trainPointsNum
             destPoint = Array(data.x[j,:])
             distance = calcDist(sourcePoint, destPoint; method=method)
-            push!(distances, distance)
+            distances[j] = distance
         end
         sortedIndex = sortperm(distances)
         targetCandidates = Array(data.y)[sortedIndex[1:k]]
         predictedLabel = extractTop(targetCandidates)
-        push!(predictedLabels, predictedLabel)
+        predictedLabels[i] = predictedLabel
     end
     return predictedLabels
 end
