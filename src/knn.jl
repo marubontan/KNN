@@ -43,8 +43,8 @@ end
 function extractTop(targetCandidates)
     targetFrequency = counter(targetCandidates)
 
-    normValue = 0
-    normKey = "hoge"
+    normValue = zero(Int)
+    normKey = ""
 
     for key in keys(targetFrequency)
         if targetFrequency[key] > normValue
