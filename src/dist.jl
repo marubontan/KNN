@@ -12,5 +12,5 @@ function minkowski(sourcePoint, destPoint)
     for i in 1:length(sourcePoint)
         sum += abs(destPoint[i] - sourcePoint[i])
     end
-    return
+    return sum
 end

@@ -6,14 +6,14 @@ type KNN
     y::DataFrames.DataFrame
 end
 
-function predict(data::KNN, testData::DataFrames.DataFrame, k=5)
+function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclidean")
     predictedLabels = []
     for i in 1:size(testData, 1)
         sourcePoint = Array(testData[i,:])
         distances = []
         for j in 1:size(data.x, 1)
             destPoint = Array(data.x[j,:])
-            distance = calcDist(sourcePoint, destPoint)
+            distance = calcDist(sourcePoint, destPoint; method=method)
             push!(distances, distance)
         end
         sortedIndex = sortperm(distances)
@@ -24,7 +24,7 @@ function predict(data::KNN, testData::DataFrames.DataFrame, k=5)
     return predictedLabels
 end
 
-function calcDist(sourcePoint, destPoint, method="euclidean")
+function calcDist(sourcePoint::Array, destPoint::Array; method="euclidean")
 
     if length(sourcePoint) != length(destPoint)
         error("The lengths of two arrays are different.")
@@ -72,7 +72,7 @@ function main()
     yTest = testData[:, [:Species]]
 
     knn = KNN(xTrain, yTrain)
-    predicted = predict(knn, xTest)
+    predicted = predict(knn, xTest; method="minkowski")
 
     accurate = 0
     yTestArray = Array(yTest)
