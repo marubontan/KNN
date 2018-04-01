@@ -1,5 +1,5 @@
 using DataFrames, CSV, DataStructures
-
+include("dist.jl")
 
 type KNN
     x::DataFrames.DataFrame
@@ -24,13 +24,18 @@ function predict(data::KNN, testData::DataFrames.DataFrame, k=5)
     return predictedLabels
 end
 
-function calcDist(sourcePoint, destPoint)
-    sum = 0
-    for i in 1:length(sourcePoint)
-        sum += (destPoint[i] - sourcePoint[i]) ^ 2
+function calcDist(sourcePoint, destPoint, method="euclidean")
+
+    if length(sourcePoint) != length(destPoint)
+        error("The lengths of two arrays are different.")
+        return
     end
-    dist = sqrt(sum)
-    return dist
+
+    if method == "euclidean"
+        return euclidean(sourcePoint, destPoint)
+    elseif method == "minkowski"
+        return minkowski(sourcePoint, destPoint)
+    end
 end
 
 function extractTop(targetCandidates)
@@ -57,7 +62,7 @@ function splitTrainTest(data, at = 0.7)
 end
 
 function main()
-    df = readtable("iris.csv", header=true)
+    df = readtable("../data/iris.csv", header=true)
 
     trainData, testData = splitTrainTest(df)
 
