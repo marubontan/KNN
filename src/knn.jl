@@ -6,22 +6,26 @@ type KNN
     y::DataFrames.DataFrame
 end
 
-function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclidean")
+function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclidean", prob=false)
     targetPointsNum = size(testData, 1)
-    predictedLabels = Array{String}(targetPointsNum)
+    if prob == true
+        sortedLabel = sort(unique(Array(data.y)))
+    end
+    predictedLabels = []
+    trainPointsNum = size(data.x, 1)
     for i in 1:targetPointsNum
         sourcePoint = Array(testData[i,:])
-        trainPointsNum = size(data.x, 1)
         distances = Array{Float64}(trainPointsNum)
         for j in 1:trainPointsNum
             destPoint = Array(data.x[j,:])
             distance = calcDist(sourcePoint, destPoint; method=method)
             distances[j] = distance
         end
+
         sortedIndex = sortperm(distances)
         targetCandidates = Array(data.y)[sortedIndex[1:k]]
-        predictedLabel = extractTop(targetCandidates)
-        predictedLabels[i] = predictedLabel
+        predictedLabel = prob ? getProb(targetCandidates, sortedLabel) : extractTop(targetCandidates)
+        push!(predictedLabels, predictedLabel)
     end
     return predictedLabels
 end
@@ -38,6 +42,21 @@ function calcDist(sourcePoint::Array, destPoint::Array; method="euclidean")
     elseif method == "minkowski"
         return minkowski(sourcePoint, destPoint)
     end
+end
+
+function getProb(targetCandidates, sortedLabel)
+    targetFrequency = counter(targetCandidates)
+    probDictionary = Dict()
+    for label in sortedLabel
+        if label in keys(targetFrequency)
+            probDictionary[label] = targetFrequency[label]
+        else
+            probDictionary[label] = 0.0
+        end
+    end
+    sumArray = [probDictionary[key] for key in sortedLabel]
+    probArray = sumArray / sum(sumArray)
+    return probArray
 end
 
 function extractTop(targetCandidates)

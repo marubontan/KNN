@@ -13,7 +13,7 @@ function main()
 
     knn = KNN(xTrain, yTrain)
     predicted = predict(knn, xTest; method="minkowski", k=10)
-
+    
     accurate = 0
     yTestArray = Array(yTest)
     for i in 1:length(predicted)
