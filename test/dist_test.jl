@@ -1,7 +1,7 @@
 using Base.Test
 include("../src/dist.jl")
 
-@testset "distination function" begin
+@testset "distance function" begin
     dataSourceNum = [1.0, 2.0]
     dataDestNum = [3.0, 4.0]
     @test euclidean(dataSourceNum, dataDestNum) == sqrt(8)
