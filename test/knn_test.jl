@@ -23,4 +23,22 @@ end
 
         @test getProb(['a', 'a', 'a'], sortedLabel) == [1.0, 0.0]
     end
+    @testset "calcDistancesBetweenSourceAndDestinations" begin
+        sourceA = [1, 2]
+        destsA = [3 4; 5 6]
+        @test calcDistancesBetweenSourceAndDestinations(sourceA, destsA) == [sqrt(8), sqrt(32)]
+    end
+    df = readtable("../data/iris.csv", header=true)
+
+    trainData, testData = splitTrainTest(df)
+
+    xTrain = trainData[:, [:SepalLength, :SepalWidth, :PetalLength, :PetalWidth]]
+    yTrain = trainData[:, [:Species]]
+    xTest = testData[:, [:SepalLength, :SepalWidth, :PetalLength, :PetalWidth]]
+    yTest = testData[:, [:Species]]
+
+    knn = KNN(xTrain, yTrain)
+    predicted = predict(knn, xTest; k=3)
+    @test isa(predicted, Array)
+    @test length(predicted) == size(xTest)[1]
 end
