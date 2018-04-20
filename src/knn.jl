@@ -15,14 +15,7 @@ function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclide
     trainPointsNum = size(data.x, 1)
     for i in 1:targetPointsNum
         sourcePoint = Array(testData[i,:])
-        
-        distances = Array{Float64}(trainPointsNum)
-        for j in 1:trainPointsNum
-            destPoint = Array(data.x[j,:])
-            distance = calcDist(sourcePoint, destPoint; method=method)
-            distances[j] = distance
-        end
-
+        distances = calcDistancesBetweenSourceAndDestinations(sourcePoint, data.x)
         sortedIndex = sortperm(distances)
         targetCandidates = Array(data.y)[sortedIndex[1:k]]
         predictedLabel = prob ? getProb(targetCandidates, sortedLabel) : extractTop(targetCandidates)
