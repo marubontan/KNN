@@ -2,8 +2,8 @@ using DataFrames, CSV, DataStructures
 include("dist.jl")
 
 type KNN
-    x::DataFrames.DataFrame
-    y::DataFrames.DataFrame
+    x::Array
+    y::Array
 end
 
 function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclidean", prob=false)
@@ -15,19 +15,17 @@ function predict(data::KNN, testData::DataFrames.DataFrame; k=5, method="euclide
     trainPointsNum = size(data.x, 1)
     for i in 1:targetPointsNum
         sourcePoint = Array(testData[i,:])
-        distances = Array{Float64}(trainPointsNum)
-        for j in 1:trainPointsNum
-            destPoint = Array(data.x[j,:])
-            distance = calcDist(sourcePoint, destPoint; method=method)
-            distances[j] = distance
-        end
-
+        distances = calcDistancesBetweenSourceAndDestinations(sourcePoint, data.x)
         sortedIndex = sortperm(distances)
         targetCandidates = Array(data.y)[sortedIndex[1:k]]
         predictedLabel = prob ? getProb(targetCandidates, sortedLabel) : extractTop(targetCandidates)
         push!(predictedLabels, predictedLabel)
     end
     return predictedLabels
+end
+
+function calcDistancesBetweenSourceAndDestinations(source::Array, destinations::Array)
+    return [calcDist(source, destinations[i, :]) for i in 1:size(destinations)[1]]
 end
 
 function calcDist(sourcePoint::Array, destPoint::Array; method="euclidean")
